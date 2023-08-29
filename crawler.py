@@ -102,7 +102,7 @@ class Crawler:
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
-        WebDriverWait(self.crawler, self.time_out).until(
+        WebDriverWait(self.driver, self.time_out).until(
             EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_XPATH))
         ).click()
 
