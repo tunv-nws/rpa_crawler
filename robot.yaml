@@ -7,3 +7,5 @@ PATH:
   - .
 PYTHONPATH:
   - .
+ignoreFiles:
+  - .gitignore
