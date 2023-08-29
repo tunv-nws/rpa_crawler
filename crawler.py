@@ -15,16 +15,13 @@ from typing import Optional, Tuple
 
 from urllib.parse import urlparse
 from helpers.excel_helper import ExcelHelper
+from helpers.crawler_helper import get_element, get_multi_elements
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 from utils.date_utils import get_months_ago, convert_datetime_to_string
 from utils.file_utils import check_directory_exist
 
 logger = logging.getLogger(__name__)
-
-SEARCH_RESULT_SELECTOR = "ol[data-testid*='search-results']"
 
 
 def to_int(value: str) -> Optional[int]:
@@ -96,11 +93,6 @@ class Crawler:
         self._show_all_search_result()
         return self._get_news_list()
 
-    def _wait_until_return_search_result(self):
-        WebDriverWait(self.driver, self.time_out).until(
-            EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_SELECTOR))
-        )
-
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
         button = self.driver.find_element(
@@ -113,30 +105,22 @@ class Crawler:
         input_field = "//*[@id='search-input']/form/div/input"
         self.crawler.input_text(input_field, pharse)
         self.crawler.press_keys(input_field, "ENTER")
-        # self._wait_until_return_search_result()
 
     def _select_search_section(self, choosen_section: str) -> None:
+        if not choosen_section:
+            return None
+
         section_elems = self._get_section_elements()
         for elem in section_elems:
             # section is a span tag and inside of it, it has another span tag
             # the sub span tag represent for total article
-            section = elem.find_element(By.TAG_NAME, "span")
+            section = get_element(elem, "span", type=By.TAG_NAME)
             if choosen_section in section.text:
                 section.click()
-                # self._wait_until_return_search_result()
 
     def _get_section_elements(self) -> list:
-        form = self.driver.find_element(By.CSS_SELECTOR, "div[data-testid*='section']")
-        dropdown_button_elem = form.find_element(
-            By.CSS_SELECTOR,
-            "button[data-testid*='search-multiselect-button']",
-        )
-        dropdown_button_elem.click()
-        sections = form.find_element(
-            By.CSS_SELECTOR,
-            "ul[data-testid*='multi-select-dropdown-list']",
-        )
-        return sections.find_elements(By.TAG_NAME, "li")
+        selector = "div[data-testid*='section']"
+        return self._get_select_options(selector)
 
     def _select_search_type(self, choosen_type: str) -> None:
         if not choosen_type:
@@ -146,54 +130,60 @@ class Crawler:
         for elem in type_elems:
             # type is a span tag and inside of it, it has another span tag
             # the sub span tag represent for total article
-            type = elem.find_element(By.TAG_NAME, "span")
+            type = get_element(elem, "span", type=By.TAG_NAME)
             if choosen_type in type.text:
                 type.click()
-                # self._wait_until_return_search_result()
 
     def _get_type_elements(self) -> list:
         """Get list of types."""
-        form = self.driver.find_element(By.CSS_SELECTOR, "div[data-testid*='type']")
-        dropdown_button_elem = form.find_element(
-            By.CSS_SELECTOR,
+        selector = "div[data-testid*='type']"
+        return self._get_select_options(selector)
+    
+    def _get_select_options(self, form_selector: str) -> list:
+        form = get_element(self.driver, form_selector)
+        dropdown = get_element(
+            form,
             "button[data-testid*='search-multiselect-button']",
         )
-        dropdown_button_elem.click()
-        sections = form.find_element(
-            By.CSS_SELECTOR,
+        dropdown.click()
+
+        options = get_element(
+            form,
             "ul[data-testid*='multi-select-dropdown-list']",
         )
-        return sections.find_elements(By.TAG_NAME, "li")
+        return get_multi_elements(options, "li", type=By.TAG_NAME)
 
     def _enter_search_period(self, filter_option: int) -> None:
         start_date, end_date = self._get_search_period(filter_option)
-        form = self.driver.find_element(
-            By.CSS_SELECTOR,
+        if not start_date and end_date:
+            return None
+
+        form = get_element(
+            self.driver,
             "div[aria-label*='Date Range']",
         )
-        dropdown_button_elem = form.find_element(
-            By.CSS_SELECTOR,
-            "button[data-testid*='search-date-dropdown-a']",
+        dropdown = get_element(
+            form,
+            "button[data-testid*='search-date-dropdown-a']"
         )
-        dropdown_button_elem.click()
+        dropdown.click()
         self._click_specific_date_option(form)
 
-        start_date_input = form.find_element(
-            By.CSS_SELECTOR,
+        start_date_input = get_element(
+            form,
             "input[data-testid*='DateRange-startDate']",
         )
         if start_date:
             start_date_input.send_keys(start_date)
 
-        end_date_input = form.find_element(
-            By.CSS_SELECTOR,
+        end_date_input = get_element(
+            form,
             "input[data-testid*='DateRange-endDate']",
         )
         end_date_input.send_keys(end_date)
-        # self._wait_until_return_search_result()
 
     def _click_specific_date_option(self, form: WebElement) -> None:
-        option = form.find_elements(By.TAG_NAME, "li")[-1]
+        option = get_multi_elements(form, "li", type=By.TAG_NAME)[-1]
         option.click()
 
     def _get_search_period(self, filter_option: int) -> Tuple[str, str]:
@@ -245,11 +235,12 @@ class Crawler:
 
     def _get_news_list(self) -> list:
         """Get all the news from the search's result."""
-        search_result = self.driver.find_element(
-            By.CSS_SELECTOR, SEARCH_RESULT_SELECTOR
+        search_result = get_element(
+            self.driver, 
+            "ol[data-testid*='search-results']",
         )
-        news = search_result.find_elements(
-            By.CSS_SELECTOR,
+        news = get_multi_elements(
+            search_result,
             "li[data-testid*='search-bodega-result']",
         )
         return news
@@ -258,7 +249,7 @@ class Crawler:
         date = self._extract_text_by_tag_name(news, "span")
         image_name, image_path = self._save_image(news)
 
-        content = news.find_element(By.TAG_NAME, "a")
+        content = get_element(news, "a", type=By.TAG_NAME)
         title = self._extract_text_by_tag_name(content, "h4")
         description = self._extract_text_by_tag_name(content, "p")
 
@@ -281,7 +272,7 @@ class Crawler:
 
     def _extract_text_by_tag_name(self, news: WebElement, tag_name: str) -> str:
         try:
-            elem = news.find_element(By.TAG_NAME, tag_name)
+            elem = get_element(news, tag_name, type=By.TAG_NAME)
             return elem.text
         except StaleElementReferenceException:
             return ""
@@ -289,7 +280,7 @@ class Crawler:
     def _save_image(self, news: WebElement) -> Optional[str]:
         """Save image to computer and return the file path."""
         try:
-            image = news.find_element(By.TAG_NAME, "img")
+            image = get_element(news, "img", type=By.TAG_NAME)
             image_name = self._extract_image_name(image.get_attribute("src"))
             static_path = os.path.join("images")
             check_directory_exist(static_path)
