@@ -37,7 +37,7 @@ def to_int(value: str) -> Optional[int]:
 class Crawler:
     """Crawler executions."""
 
-    time_out = 10
+    time_out = 20
 
     def __init__(self, website: str) -> None:
         self.crawler = Selenium()
