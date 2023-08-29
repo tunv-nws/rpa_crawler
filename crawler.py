@@ -102,8 +102,13 @@ class Crawler:
 
     def _enter_search_pharse(self, pharse: str) -> None:
         # click the button search first
-        WebDriverWait(self.driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"))
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button",
+                )
+            )
         ).click()
         input_field = "//*[@id='search-input']/form/div/input"
         self.crawler.input_text(input_field, pharse)
