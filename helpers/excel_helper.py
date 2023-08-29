@@ -34,6 +34,6 @@ class ExcelHelper:
     def _generate_unique_folder(self):
         now = datetime.now()
         now_timestamp = int(datetime.timestamp(now))
-        folder_path = os.path.join("output", str(now_timestamp))
+        folder_path = "output"
         check_directory_exist(folder_path)
         return folder_path
