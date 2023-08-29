@@ -1,16 +1,21 @@
+import os
+
 from RPA.Browser.Selenium import Selenium
 from crawler import Crawler
+from dotenv import load_dotenv
+
 
 browser_lib = Selenium()
 
 
 # Define a main() function that calls the other functions in order:
 def main():
-    url = "https://www.nytimes.com/"
-    search_pharse = "iniesta"
-    filter_section = "Blogs"
-    filter_type = ""
-    filter_period_option = 0
+    load_dotenv()
+    url = os.getenv('URL')
+    search_pharse = os.getenv('SEARCH_PHARSE')
+    filter_section = os.getenv('FILTER_SECTION')
+    filter_type = os.getenv('FILTER_TYPE') or ""
+    filter_period_option = os.getenv('FILTER_PERIOD_OPTION')
     crawler = Crawler(url)
     crawler.run(
         search_pharse,
