@@ -7,6 +7,7 @@ from SeleniumLibrary.errors import ElementNotFound
 from selenium.common.exceptions import (
     NoSuchElementException,
     StaleElementReferenceException,
+    ElementClickInterceptedException,
 )
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
@@ -102,7 +103,9 @@ class Crawler:
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
-        button = self.driver.find_element(By.CSS_SELECTOR, "button[data-testid*='search-button']")
+        button = self.driver.find_element(
+            By.CSS_SELECTOR, "button[data-testid*='search-button']"
+        )
         button.click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
@@ -123,9 +126,7 @@ class Crawler:
                 # self._wait_until_return_search_result()
 
     def _get_section_elements(self) -> list:
-        form = self.driver.find_element(
-            By.CSS_SELECTOR, "div[data-testid*='section']"
-        )
+        form = self.driver.find_element(By.CSS_SELECTOR, "div[data-testid*='section']")
         dropdown_button_elem = form.find_element(
             By.CSS_SELECTOR,
             "button[data-testid*='search-multiselect-button']",
@@ -152,9 +153,7 @@ class Crawler:
 
     def _get_type_elements(self) -> list:
         """Get list of types."""
-        form = self.driver.find_element(
-            By.CSS_SELECTOR, "div[data-testid*='type']"
-        )
+        form = self.driver.find_element(By.CSS_SELECTOR, "div[data-testid*='type']")
         dropdown_button_elem = form.find_element(
             By.CSS_SELECTOR,
             "button[data-testid*='search-multiselect-button']",
@@ -222,7 +221,11 @@ class Crawler:
             )
             while self.crawler.is_element_visible(show_more_button):
                 show_more_button.click()
-        except (ElementNotFound, StaleElementReferenceException):
+        except (
+            ElementNotFound,
+            StaleElementReferenceException,
+            ElementClickInterceptedException,
+        ):
             return None
 
     def _open_the_website(self) -> None:
