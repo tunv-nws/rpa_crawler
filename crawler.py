@@ -102,7 +102,7 @@ class Crawler:
 
     def _enter_search_pharse(self, pharse: str) -> None:
         # click the button search first
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, 3).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
