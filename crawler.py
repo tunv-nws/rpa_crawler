@@ -83,6 +83,7 @@ class Crawler:
         filter_type: str,
         filter_period_option: int,
     ) -> None:
+        self._click_search_sign()
         self._enter_search_pharse(search_pharse)
 
         self._select_search_section(filter_section)
@@ -99,17 +100,14 @@ class Crawler:
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
+        button_ele = (
+            "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"
+        )
+        button = self.driver.find_element(By.XPATH, button_ele)
+        button.click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
         # click the button search first
-        WebDriverWait(self.driver, 3).until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button",
-                )
-            )
-        ).click()
         input_field = "//*[@id='search-input']/form/div/input"
         self.crawler.input_text(input_field, pharse)
         self.crawler.press_keys(input_field, "ENTER")
