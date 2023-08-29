@@ -103,7 +103,7 @@ class Crawler:
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
         WebDriverWait(self.driver, self.time_out).until(
-            EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_XPATH))
+            EC.presence_of_element_located((By.XPATH, "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"))
         ).click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
