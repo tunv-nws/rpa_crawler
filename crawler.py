@@ -37,6 +37,8 @@ def to_int(value: str) -> Optional[int]:
 class Crawler:
     """Crawler executions."""
 
+    time_out = 10
+
     def __init__(self, website: str) -> None:
         self.crawler = Selenium()
         self.website = website
@@ -94,17 +96,15 @@ class Crawler:
         return self._get_news_list()
 
     def _wait_until_return_search_result(self):
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.time_out).until(
             EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_XPATH))
         )
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
-        button_ele = (
-            "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"
-        )
-        button = self.driver.find_element(By.XPATH, button_ele)
-        button.click()
+        WebDriverWait(self.crawler, self.time_out).until(
+            EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_XPATH))
+        ).click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
         # click the button search first
