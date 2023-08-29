@@ -24,7 +24,7 @@ from utils.file_utils import check_directory_exist
 
 logger = logging.getLogger(__name__)
 
-SEARCH_RESULT_XPATH = "ol[data-testid*='search-results']"
+SEARCH_RESULT_SELECTOR = "ol[data-testid*='search-results']"
 
 
 def to_int(value: str) -> Optional[int]:
@@ -98,7 +98,7 @@ class Crawler:
 
     def _wait_until_return_search_result(self):
         WebDriverWait(self.driver, self.time_out).until(
-            EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_XPATH))
+            EC.presence_of_element_located((By.XPATH, SEARCH_RESULT_SELECTOR))
         )
 
     def _click_search_sign(self) -> None:
@@ -242,7 +242,9 @@ class Crawler:
 
     def _get_news_list(self) -> list:
         """Get all the news from the search's result."""
-        search_result = self.driver.find_element(By.XPATH, SEARCH_RESULT_XPATH)
+        search_result = self.driver.find_element(
+            By.CSS_SELECTOR, SEARCH_RESULT_SELECTOR
+        )
         news = search_result.find_elements(
             By.CSS_SELECTOR,
             "li[data-testid*='search-bodega-result']",
