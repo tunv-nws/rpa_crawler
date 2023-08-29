@@ -24,7 +24,7 @@ from utils.file_utils import check_directory_exist
 
 logger = logging.getLogger(__name__)
 
-SEARCH_RESULT_XPATH = "//*[@id='site-content']/div/div[2]/div[1]/ol"
+SEARCH_RESULT_XPATH = "ol[data-testid*='search-results']"
 
 
 def to_int(value: str) -> Optional[int]:
@@ -267,11 +267,11 @@ class Crawler:
             "date": date,
             "description": description,
             "search_pharse_appear": total_search_pharse_appear,
-            "image_name": image_name,
-            "image_path": image_path,
             "exist_moneys": self._is_money_exist_in_title_or_description(
                 title, description
             ),
+            "image_name": image_name,
+            "image_path": image_path,
         }
 
     def _extract_text_by_tag_name(self, news: WebElement, tag_name: str) -> str:
