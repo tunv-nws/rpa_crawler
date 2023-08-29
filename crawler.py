@@ -270,11 +270,12 @@ class Crawler:
         try:
             image = news.find_element(By.TAG_NAME, "img")
             image_name = self._extract_image_name(image.get_attribute("src"))
-            path = os.path.join("images", image_name)
-            check_directory_exist(path)
-            with open(path, "wb") as file:
+            static_path = os.path.join("images")
+            check_directory_exist(static_path)
+            image_path = os.path.join(static_path, image_name)
+            with open(image_path, "wb") as file:
                 file.write(image.screenshot_as_png)
-            return image_name, path
+            return image_name, image_path
 
         except (NoSuchElementException, StaleElementReferenceException):
             return None, None
