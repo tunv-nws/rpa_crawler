@@ -26,6 +26,14 @@ logger = logging.getLogger(__name__)
 SEARCH_RESULT_XPATH = "//*[@id='site-content']/div/div[2]/div[1]/ol"
 
 
+def to_int(value: str) -> Optional[int]:
+    """Convert string to integer."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 class Crawler:
     """Crawler executions."""
 
@@ -75,7 +83,6 @@ class Crawler:
         filter_type: str,
         filter_period_option: int,
     ) -> None:
-        self._click_search_sign()
         self._enter_search_pharse(search_pharse)
 
         self._select_search_section(filter_section)
@@ -92,13 +99,12 @@ class Crawler:
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
-        button_ele = (
-            "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"
-        )
-        button = self.crawler.find_element(button_ele)
-        button.click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
+        # click the button search first
+        WebDriverWait(self.driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"))
+        ).click()
         input_field = "//*[@id='search-input']/form/div/input"
         self.crawler.input_text(input_field, pharse)
         self.crawler.press_keys(input_field, "ENTER")
@@ -130,6 +136,9 @@ class Crawler:
         return sections.find_elements(By.TAG_NAME, "li")
 
     def _select_search_type(self, choosen_type: str) -> None:
+        if not choosen_type:
+            return
+
         type_elems = self._get_type_elements()
         for elem in type_elems:
             # type is a span tag and inside of it, it has another span tag
@@ -187,7 +196,8 @@ class Crawler:
         option.click()
 
     def _get_search_period(self, filter_option: int) -> Tuple[str, str]:
-        if not isinstance(filter_option, int):
+        filter_option = to_int(filter_option)
+        if filter_option is None:
             return None, None
 
         date_format = "%m/%d/%Y"
