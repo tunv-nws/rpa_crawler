@@ -220,6 +220,9 @@ class Crawler:
                 "button[data-testid*='search-show-more-button']",
             )
             while self.crawler.is_element_visible(show_more_button):
+                self.driver.execute_script(
+                    "window.scrollTo(0, document.body.scrollHeight);"
+                )
                 show_more_button.click()
         except (
             ElementNotFound,
