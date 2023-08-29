@@ -102,16 +102,15 @@ class Crawler:
 
     def _click_search_sign(self) -> None:
         """Click the search button for showing up the search input."""
-        WebDriverWait(self.driver, self.time_out).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id='app']/div[2]/div[2]/header/section[1]/div[1]/div[2]/button"))
-        ).click()
+        button = self.driver.find_element(By.CSS_SELECTOR, "button[data-testid*='search-button']")
+        button.click()
 
     def _enter_search_pharse(self, pharse: str) -> None:
         # click the button search first
         input_field = "//*[@id='search-input']/form/div/input"
         self.crawler.input_text(input_field, pharse)
         self.crawler.press_keys(input_field, "ENTER")
-        self._wait_until_return_search_result()
+        # self._wait_until_return_search_result()
 
     def _select_search_section(self, choosen_section: str) -> None:
         section_elems = self._get_section_elements()
@@ -121,11 +120,11 @@ class Crawler:
             section = elem.find_element(By.TAG_NAME, "span")
             if choosen_section in section.text:
                 section.click()
-                self._wait_until_return_search_result()
+                # self._wait_until_return_search_result()
 
     def _get_section_elements(self) -> list:
         form = self.driver.find_element(
-            By.XPATH, "//*[@id='site-content']/div/div[1]/div[2]/div/div/div[2]/div/div"
+            By.CSS_SELECTOR, "div[data-testid*='section']"
         )
         dropdown_button_elem = form.find_element(
             By.CSS_SELECTOR,
@@ -149,12 +148,12 @@ class Crawler:
             type = elem.find_element(By.TAG_NAME, "span")
             if choosen_type in type.text:
                 type.click()
-                self._wait_until_return_search_result()
+                # self._wait_until_return_search_result()
 
     def _get_type_elements(self) -> list:
         """Get list of types."""
         form = self.driver.find_element(
-            By.XPATH, "//*[@id='site-content']/div/div[1]/div[2]/div/div/div[3]/div/div"
+            By.CSS_SELECTOR, "div[data-testid*='type']"
         )
         dropdown_button_elem = form.find_element(
             By.CSS_SELECTOR,
@@ -170,8 +169,8 @@ class Crawler:
     def _enter_search_period(self, filter_option: int) -> None:
         start_date, end_date = self._get_search_period(filter_option)
         form = self.driver.find_element(
-            By.XPATH,
-            "//*[@id='site-content']/div/div[1]/div[2]/div/div/div[1]/div/div",
+            By.CSS_SELECTOR,
+            "div[aria-label*='Date Range']",
         )
         dropdown_button_elem = form.find_element(
             By.CSS_SELECTOR,
@@ -192,7 +191,7 @@ class Crawler:
             "input[data-testid*='DateRange-endDate']",
         )
         end_date_input.send_keys(end_date)
-        self._wait_until_return_search_result()
+        # self._wait_until_return_search_result()
 
     def _click_specific_date_option(self, form: WebElement) -> None:
         option = form.find_elements(By.TAG_NAME, "li")[-1]
@@ -218,7 +217,8 @@ class Crawler:
     def _show_all_search_result(self) -> None:
         try:
             show_more_button = self.driver.find_element(
-                By.XPATH, "//*[@id='site-content']/div/div[2]/div[2]/div/button"
+                By.CSS_SELECTOR,
+                "button[data-testid*='search-show-more-button']",
             )
             while self.crawler.is_element_visible(show_more_button):
                 show_more_button.click()
