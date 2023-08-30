@@ -48,6 +48,7 @@ class Crawler:
         filter_section: str,
         filter_type: str,
         filter_period_option: int,
+        sort_option: str,
     ) -> None:
         try:
             self._prepare()
@@ -56,6 +57,7 @@ class Crawler:
                 filter_section,
                 filter_type,
                 filter_period_option,
+                sort_option,
             )
 
             excel_data = []
@@ -82,10 +84,12 @@ class Crawler:
         filter_section: str,
         filter_type: str,
         filter_period_option: int,
+        sort_option:str,
     ) -> None:
         self._click_search_sign()
         self._enter_search_pharse(search_pharse)
 
+        self._select_sort_option(sort_option)
         self._select_search_section(filter_section)
         self._select_search_type(filter_type)
         self._enter_search_period(filter_period_option)
@@ -138,7 +142,7 @@ class Crawler:
         """Get list of types."""
         selector = "div[data-testid*='type']"
         return self._get_select_options(selector)
-    
+
     def _get_select_options(self, form_selector: str) -> list:
         form = get_element(self.driver, form_selector)
         dropdown = get_element(
@@ -203,6 +207,23 @@ class Crawler:
         end_date = convert_datetime_to_string(end_date, format=date_format)
         return start_date, end_date
 
+    def _select_sort_option(self, choosen_option: str) -> None:
+        """Click the sort dropdown.
+
+        We will have 3 options represent to 3 value of each option tag:
+        - best
+        - newest
+        - oldest
+        """
+        select_dropdown = get_element(self.driver, "select[data-testid*='SearchForm-sortBy']")
+        select_dropdown.click()
+
+        options = get_multi_elements(select_dropdown, "option", type=By.TAG_NAME)
+        for option in options:
+            value = option.get_attribute("value")
+            if value == choosen_option:
+                option.click()
+
     def _show_all_search_result(self) -> None:
         try:
             show_more_button = self.driver.find_element(
@@ -236,7 +257,7 @@ class Crawler:
     def _get_news_list(self) -> list:
         """Get all the news from the search's result."""
         search_result = get_element(
-            self.driver, 
+            self.driver,
             "ol[data-testid*='search-results']",
         )
         news = get_multi_elements(
