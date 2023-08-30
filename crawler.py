@@ -86,7 +86,7 @@ class Crawler:
         filter_period_option: int,
         sort_option:str,
     ) -> None:
-        self._click_search_sign()
+        self._open_search_input()
         self._enter_search_pharse(search_pharse)
 
         self._select_sort_option(sort_option)
@@ -97,7 +97,7 @@ class Crawler:
         self._show_all_search_result()
         return self._get_news_list()
 
-    def _click_search_sign(self) -> None:
+    def _open_search_input(self) -> None:
         """Click the search button for showing up the search input."""
         button = self.driver.find_element(
             By.CSS_SELECTOR, "button[data-testid*='search-button']"
