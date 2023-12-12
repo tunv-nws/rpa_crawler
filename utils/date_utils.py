@@ -14,3 +14,6 @@ def convert_datetime_to_string(dt: datetime, format="%Y-%m-%d"):
         return None
     return dt.strftime(format)
 
+
+def test(datte):
+    pass
